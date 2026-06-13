@@ -1,0 +1,9 @@
+# huge inputs / env — not for git
+.venv/
+data/
+archive.zip
+OneDrive_2026-06-07.zip
+instr/
+__pycache__/
+*.pyc
+*.cwd
