@@ -1,6 +1,9 @@
 # DeepSmells — Code Smell Detection
 ### Project 3 report / presentation notes
 
+> **Baseline reproduce.** For the improvement that beats the paper (F1 0.83 / MCC 0.81),
+> see [`REPORT_IMPROVED.md`](REPORT_IMPROVED.md).
+
 **Smell trained:** ComplexMethod · **Model:** DeepSmells (1D-CNN → LSTM)
 **Scale:** full paper-scale grid (35 configs × 60 epochs), GPU RTX 5060 Ti
 **Best result:** F1 = **0.6685**, MCC = **0.6393** (pos_weight=4, kernel=6)
