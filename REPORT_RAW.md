@@ -4,6 +4,11 @@
 **Idea:** Drop the paper's "token-index → 1D-CNN" entirely. Feed **raw source code** to a
 pretrained code language model (**CodeBERT**) and fine-tune a classifier per (language, smell).
 
+**Honest headline (true-imbalance eval, §4b):** CodeBERT is **not** a silver bullet. Vs the paper
+on C#: it **wins ComplexConditional** (F1 0.76 vs 0.59), **ties FeatureEnvy**, and **loses
+ComplexMethod** (0.60 vs 0.75) and **MultifacetedAbstraction** (0.08 vs 0.28). The earlier
+"beats everything" impression came from an easier 1:5 eval (§4) — corrected below.
+
 ---
 
 ## 1. Why this is different from the paper
@@ -89,6 +94,52 @@ negatives) — out of scope here.
 
 ---
 
+## 4b. True-imbalance evaluation — the fair comparison vs paper
+
+We re-ran every combo with the test set rebuilt at the **true class ratio** (held-out positives +
+disjoint negatives at the real proportion; threshold tuned on a separate true-ratio validation set;
+test negatives capped at 40k for tractability — so cs ratios are exact, java's are slightly higher
+than true). This is the apples-to-apples setting that matches the paper's Table 2.
+
+**Results (true imbalance):**
+
+| lang | smell | test pos% | P | R | F1 | MCC |
+|---|---|---:|---:|---:|---:|---:|
+| cs | ComplexConditional | 1.50% | 0.812 | 0.711 | **0.758** | 0.757 |
+| cs | ComplexMethod | 2.73% | 0.457 | 0.853 | **0.595** | 0.611 |
+| cs | FeatureEnvy | 0.72% | 0.181 | 0.561 | **0.274** | 0.311 |
+| cs | MultifacetedAbstraction | 0.13% | 0.043 | 0.414 | **0.078** | 0.130 |
+| java | ComplexConditional | 3.61% | 0.839 | 0.939 | 0.886 | 0.883 |
+| java | ComplexMethod | 3.61% | 0.753 | 0.930 | 0.832 | 0.830 |
+| java | FeatureEnvy | 1.27% | 0.216 | 0.502 | 0.303 | 0.317 |
+| java | MultifacetedAbstraction | 0.32% | 0.074 | 0.504 | 0.129 | 0.188 |
+
+**Head-to-head vs paper DeepSmells (C#, Table 2):**
+
+| smell | our F1 | paper F1 | our MCC | paper MCC | verdict |
+|---|---:|---:|---:|---:|---|
+| ComplexConditional | **0.758** | 0.589 | **0.757** | 0.568 | **WIN** (+0.17 F1) |
+| FeatureEnvy | 0.274 | 0.294 | **0.311** | 0.269 | tie (F1 ↓, MCC ↑) |
+| ComplexMethod | 0.595 | 0.754 | 0.611 | 0.734 | **lose** (−0.16 F1) |
+| MultifacetedAbstraction | 0.078 | 0.279 | 0.130 | 0.275 | **lose** |
+
+**Why CodeBERT wins/loses (the real finding):**
+- **Wins ComplexConditional** — short, local, semantics-rich (nested `&&`/`||`); fits in 512 tokens
+  and CodeBERT's pretrained understanding pays off.
+- **Loses ComplexMethod** — these methods are *long by definition*; `max_len=512` **truncates** them,
+  cutting the exact tail that signals complexity. The paper's 1D-CNN over the full token-index
+  sequence sees the whole method. This is the clearest lesson: truncation kills the long-method smell.
+- **Loses MultifacetedAbstraction** — only **271 training positives**; fine-tuning a 125M model on
+  so few positives at 0.13% prevalence underperforms the paper's weighted CNN.
+- **High recall, low precision** on rare smells (FE/MA): CodeBERT flags many candidates but
+  precision collapses at extreme imbalance.
+
+**Takeaway:** raw-source CodeBERT is genuinely better where local semantics matter and the unit fits
+512 tokens (ComplexConditional), but loses on long units (ComplexMethod, due to truncation) and
+tiny-positive smells (MA). A long-context or sliding-window model would be the next step.
+
+---
+
 ## 5. Cross-language observation (C# vs Java)
 
 - **Java > C#** on the complexity smells: java CC 0.954 / CM 0.946 vs cs 0.890 / 0.871 — java had
@@ -114,12 +165,18 @@ negatives) — out of scope here.
 | File | What |
 |---|---|
 | `build_dataset.py` | raw `.7z` → sampled `data_raw/*.jsonl` (8 combos) |
-| `codebert_smells.py` | fine-tune CodeBERT per combo, P/R/F1/MCC + threshold |
-| `results_codebert.json` | all 8 results |
+| `codebert_smells.py` | fine-tune CodeBERT per combo (1:5 balanced eval) |
+| `codebert_realeval.py` | **true-imbalance** eval (fair vs paper), resumable |
+| `results_codebert.json` | 1:5-eval results |
+| `results_codebert_realeval.json` | true-imbalance results |
 | `REPORT_RAW.md` | this report |
 | spec | `docs/superpowers/specs/2026-06-14-codebert-raw-source-design.md` |
 
-**Conclusion:** Fine-tuning CodeBERT on raw source code detects all four smells across C# and Java
-with F1 0.72–0.95. It cleanly addresses the paper's design choice (no learned embeddings) and far
-outperforms our token-index baseline. The headline gap vs the paper's published numbers is real but
-partly an artifact of a less-imbalanced evaluation set — stated plainly rather than oversold.
+**Conclusion:** Fine-tuning CodeBERT on raw source is a **mixed, honest result**, not a blanket win.
+On the **fair true-imbalance** comparison vs the paper (C#): CodeBERT **beats** DeepSmells on
+ComplexConditional (F1 0.76 vs 0.59), **ties** FeatureEnvy, and **loses** on ComplexMethod
+(0.60 vs 0.75, due to 512-token truncation of long methods) and MultifacetedAbstraction
+(too few positives). The earlier 1:5-eval impression of beating everything was an artifact of an
+easier evaluation distribution. The defensible contribution: a working raw-source pipeline that
+removes the paper's no-embedding limitation and clearly wins where local semantics fit in context —
+plus a concrete diagnosis (truncation, data scarcity) of where it does not.
