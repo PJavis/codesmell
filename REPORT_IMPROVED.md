@@ -1,21 +1,45 @@
 # DeepSmells+ — Improvement Report (ComplexMethod)
 ### Project 3 · enhancement over the DeepSmells baseline
 
-**Result headline:** DeepSmells+ beats the published paper on ComplexMethod —
-**F1 0.8276 vs 0.7542, MCC 0.8135 vs 0.7341** — on the *same* validation distribution
-(true ~8% positive imbalance).
+**Result headline:** On the lab's ComplexMethod dataset, DeepSmells+ reaches
+**F1 0.8276 / MCC 0.8135** — a large gain over our own DeepSmells reproduce
+(**F1 0.6685 / MCC 0.6393**) on the *identical* data and validation split.
+It also exceeds the published paper's numbers (F1 0.7542 / MCC 0.7341), **but see the
+dataset caveat in §1.1** — the paper was measured on a different (smaller) data split, so that
+particular comparison is indicative, not apples-to-apples.
 
 ---
 
 ## 1. Starting point
 
-| Model | Precision | Recall | F1 | MCC |
-|---|---:|---:|---:|---:|
-| Our reproduce (lab baseline) | 0.633 | 0.709 | 0.6685 | 0.6393 |
-| **Paper DeepSmells** (EASE'23, Table 2) | 0.731 | 0.779 | 0.7542 | 0.7341 |
-| **DeepSmells+ (this work)** | **0.852** | **0.805** | **0.8276** | **0.8135** |
+| Model | Data | Precision | Recall | F1 | MCC |
+|---|---|---:|---:|---:|---:|
+| Our reproduce (lab baseline) | **lab** | 0.633 | 0.709 | 0.6685 | 0.6393 |
+| **DeepSmells+ (this work)** | **lab** | **0.852** | **0.805** | **0.8276** | **0.8135** |
+| Paper DeepSmells (EASE'23, Table 2) | *paper* | 0.731 | 0.779 | 0.7542 | 0.7341 |
 
-Improvement over paper: **+0.073 F1, +0.079 MCC**. Over our reproduce: **+0.159 F1, +0.174 MCC**.
+- **Primary, rigorous claim** (same data + same eval): DeepSmells+ over our reproduce =
+  **+0.159 F1, +0.174 MCC**.
+- **Secondary, indicative** (different data — see §1.1): DeepSmells+ also tops the paper's reported
+  numbers by **+0.073 F1, +0.079 MCC**.
+
+### 1.1 Dataset caveat — we did NOT use the paper's exact data
+
+The lab dataset (Kaggle `dangvuhai/codesmell`, linked from the project package) is the **same
+benchmark family** as the paper but a **re-tokenized / expanded** version — the counts do not match
+the paper's Table 1:
+
+| Smell | Paper Pos / Neg | Lab data (1d) Pos / Neg |
+|---|---|---|
+| ComplexMethod | 12,489 / 144,460 | 26,164 / 466,503 |
+| ComplexConditional | 6,186 / 149,767 | 6,523 / 381,016 |
+| FeatureEnvy | 1,788 / 51,260 | 1,918 / 171,300 |
+| MultifacetedAbstraction | 290 / 50,205 | 307 / 173,757 |
+
+CM positives are ~2× and all negatives are 2.5–3.5× the paper's. So the "vs paper" row is measured
+on a **different test set** and must be read as a reference point, not a head-to-head result. The
+**defensible evidence of improvement is the same-data baseline → DeepSmells+ jump.** To make a true
+head-to-head vs the paper, we would need the paper's exact split (see §9).
 
 ---
 
@@ -117,6 +141,23 @@ data size).
 | `REPORT.md` | baseline (reproduce) report |
 
 **Conclusion:** With four targeted, low-cost changes — a token **embedding**, **Focal Loss**,
-**AdamW**, and **threshold tuning** — DeepSmells+ raises ComplexMethod detection to
-**F1 = 0.83 / MCC = 0.81**, clearly surpassing the published DeepSmells (0.75 / 0.73) on an
-identical, realistically imbalanced evaluation.
+**AdamW**, and **threshold tuning** — DeepSmells+ raises ComplexMethod detection from our
+same-data baseline **F1 0.67 / MCC 0.64 to F1 0.83 / MCC 0.81**. It also exceeds the paper's
+reported 0.75 / 0.73, though that comparison is on a different data split (§1.1) and should be
+read as indicative.
+
+---
+
+## 9. Path to a true head-to-head with the paper
+
+The current paper comparison is indicative because the data differs (§1.1). To make it exact, in
+rough order of preference:
+
+1. **Obtain the paper's exact dataset/split.** The paper builds on the benchmark of Sharma et al.;
+   the original DeepSmells codebase (HUST authors) ships the tokenized split + train/test protocol.
+   Run *both* the baseline and DeepSmells+ on that data → directly comparable to Table 2/3.
+2. **Match the paper's protocol on available data.** Use all positives (drop the 5000 cap),
+   the paper's 70/30 split, and the same outlier/padding rules; reproduce their reported pos/neg
+   ratios as closely as possible. Closer, but counts still won't match exactly.
+3. **Keep the current framing (done).** Treat the paper as a reference point and prove improvement
+   against the same-data baseline — already rigorous, just not a head-to-head vs the paper.
