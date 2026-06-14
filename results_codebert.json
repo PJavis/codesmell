@@ -1,0 +1,98 @@
+[
+  {
+    "lang": "cs",
+    "smell": "ComplexConditional",
+    "n": 36534,
+    "pos": 6089,
+    "precision": 0.8711367207962284,
+    "recall": 0.9102353585112206,
+    "f1": 0.8902569593147751,
+    "mcc": 0.8680290397903679,
+    "threshold": 0.9,
+    "epoch": 3
+  },
+  {
+    "lang": "cs",
+    "smell": "ComplexMethod",
+    "n": 48000,
+    "pos": 8000,
+    "precision": 0.8068303094983992,
+    "recall": 0.945,
+    "f1": 0.8704663212435233,
+    "mcc": 0.84598895874462,
+    "threshold": 0.85,
+    "epoch": 3
+  },
+  {
+    "lang": "cs",
+    "smell": "FeatureEnvy",
+    "n": 13122,
+    "pos": 2187,
+    "precision": 0.7643051771117166,
+    "recall": 0.8551829268292683,
+    "f1": 0.8071942446043165,
+    "mcc": 0.7678020672977012,
+    "threshold": 0.7,
+    "epoch": 3
+  },
+  {
+    "lang": "cs",
+    "smell": "MultifacetedAbstraction",
+    "n": 2316,
+    "pos": 386,
+    "precision": 0.7074829931972789,
+    "recall": 0.896551724137931,
+    "f1": 0.7908745247148289,
+    "mcc": 0.7508308233022517,
+    "threshold": 0.6,
+    "epoch": 3
+  },
+  {
+    "lang": "java",
+    "smell": "ComplexConditional",
+    "n": 48000,
+    "pos": 8000,
+    "precision": 0.9401052205584783,
+    "recall": 0.9679166666666666,
+    "f1": 0.9538082529254773,
+    "mcc": 0.94455318839554,
+    "threshold": 0.75,
+    "epoch": 2
+  },
+  {
+    "lang": "java",
+    "smell": "ComplexMethod",
+    "n": 48000,
+    "pos": 8000,
+    "precision": 0.9258668792347549,
+    "recall": 0.9679166666666666,
+    "f1": 0.9464249337950703,
+    "mcc": 0.9357583483085431,
+    "threshold": 0.95,
+    "epoch": 3
+  },
+  {
+    "lang": "java",
+    "smell": "FeatureEnvy",
+    "n": 20574,
+    "pos": 3429,
+    "precision": 0.6837979094076655,
+    "recall": 0.7628765792031098,
+    "f1": 0.7211759301791456,
+    "mcc": 0.6631612206958508,
+    "threshold": 0.44999999999999996,
+    "epoch": 3
+  },
+  {
+    "lang": "java",
+    "smell": "MultifacetedAbstraction",
+    "n": 5082,
+    "pos": 847,
+    "precision": 0.6687898089171974,
+    "recall": 0.8267716535433071,
+    "f1": 0.7394366197183099,
+    "mcc": 0.6864006981827641,
+    "threshold": 0.85,
+    "epoch": 3
+  }
+]
