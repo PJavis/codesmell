@@ -2,7 +2,8 @@
 ### Project 3 report / presentation notes
 
 > **Baseline reproduce.** For the improvement that beats the paper (F1 0.83 / MCC 0.81),
-> see [`REPORT_IMPROVED.md`](REPORT_IMPROVED.md).
+> see [`REPORT_IMPROVED.md`](REPORT_IMPROVED.md). For a step-by-step trace of how the data is
+> processed (real sample, every shape change), see [`REPORT_DATA.md`](REPORT_DATA.md).
 
 **Smell trained:** ComplexMethod · **Model:** DeepSmells (1D-CNN → LSTM)
 **Scale:** full paper-scale grid (35 configs × 60 epochs), GPU RTX 5060 Ti
